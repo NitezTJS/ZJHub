@@ -1,11 +1,11 @@
 
 --[[
     ZJ/HUB Main Loader
-    Version: 1.6
+    Version: 1.7
     Author: NitezTJS
 ]]
 
-local CURRENT_VERSION = "1.6"
+local CURRENT_VERSION = "1.7"
 local scriptName = "ZJHub_" .. math.random(1000, 9999)
 
 local moduleUrls = {
