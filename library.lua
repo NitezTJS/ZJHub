@@ -1,14 +1,27 @@
 --[[
     ZSecurity SDK
-    Version: 1.0.0
+    Version: 1.0.1
     
     This SDK provides an interface to interact with the ZSecurity API
     for key validation and management in Roblox exploits.
+    
+    Note: This script uses functions provided by Roblox exploits that
+    are not part of standard Lua (identifyexecutor, syn, http, request, etc.).
+    These functions are injected by the exploit environment at runtime.
 ]]
 
+-- Declare exploit-specific globals to avoid lint errors
+-- These will be overwritten by the actual implementations at runtime
+identifyexecutor = identifyexecutor or function() return "unknown" end
+syn = syn or {}
+http = http or {}
+request = request or function() return nil end
+httpRequest = httpRequest or function() return nil end
+
 -- Configuration
-local API_URL = "https://zsecurity-api.onrender.com" -- Replace with your actual API URL
+local API_URL = "https://zsecurity-api.onrender.com" -- Replace with your actual API URL when deployed
 local DEFAULT_TIMEOUT = 10 -- Seconds
+local SDK_VERSION = "1.0.1" -- SDK version
 
 -- Utility functions
 local function generateMachineId()
@@ -17,7 +30,7 @@ local function generateMachineId()
         local result = ""
         pcall(function()
             -- Try to get MAC address using different methods based on OS
-            if identifyexecutor then
+            if type(identifyexecutor) == "function" then
                 -- Some exploits provide this function
                 result = tostring(identifyexecutor())
             end
@@ -87,13 +100,13 @@ local function httpRequest(method, endpoint, data, timeout)
     -- Make the request
     local success, response = pcall(function()
         -- Different exploits have different HTTP request functions
-        if syn and syn.request then
+        if type(syn) == "table" and type(syn.request) == "function" then
             return syn.request(options)
-        elseif http and http.request then
+        elseif type(http) == "table" and type(http.request) == "function" then
             return http.request(options)
-        elseif request then
+        elseif type(request) == "function" then
             return request(options)
-        elseif httpRequest then
+        elseif type(httpRequest) == "function" then
             return httpRequest(options)
         else
             error("HTTP request function not found")
